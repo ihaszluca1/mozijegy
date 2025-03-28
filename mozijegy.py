@@ -51,29 +51,21 @@ def leiras():
     top.config(bg="white")
 
 
-def halloween():
+def foglalas():
     top = Toplevel()
-    top.title("Gyilkos halloween foglalás")
-    top.config(bg="white")
+    top.title("Jegyfoglalás")
+    top.config(bg="green")
+    vezeteknev = Label(top, text="Vezetéknév", font=("Ariel", 15)).grid(column=1, row=1, columnspan=2, pady=10)
+    keresztnev = Label(top, text="Keresztnév", font=("Ariel", 15)).grid(column=1, row=2, columnspan=2, pady=10)
+    telefon = Label(top, text="Telefonszám", font=("Ariel", 15)).grid(column=1, row=3, columnspan=2, pady=10)
+    email = Label(top, text="Email", font=("Ariel", 15)).grid(column=1, row=4, columnspan=2, pady=10)
+    email_megint = Label(top, text="Email ismét", font=("Ariel", 15)).grid(column=1, row=5, columnspan=2, pady=10)
+    vezeteknev_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid").grid(column=4, row=1, columnspan=2, padx=3, pady=5)
+    keresztnev_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid").grid(column=4, row=2, columnspan=2, padx=3, pady=5)
+    telefon_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid").grid(column=4, row=3, columnspan=2, padx=3, pady=5)
+    email_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid").grid(column=4, row=4, columnspan=2, padx=3, pady=5)
+    email_megint_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid").grid(column=4, row=5, columnspan=2, padx=3, pady=5)
 
-
-def toyystory():
-    toy = Toplevel()
-    toy.title("Toy Story foglalás")
-    toy.config(bg="#a3cef1")
-
-
-
-def miia():
-    mia = Toplevel()
-    mia.title("Mamma mia foglalás")
-    mia.config(bg="white")
-
-
-def boots():
-    cat = Toplevel()
-    cat.title("Csizmás a kandúr foglalás")
-    cat.config(bg="white")
 
 
 
@@ -121,7 +113,7 @@ puss_meret_cim =Label(root, image=puss_meret).grid(column=7, row=4)
 
 
 
-horror_foglalas_button = Button(root, text="Foglalás", font=("Arial", 18), command=halloween)
+horror_foglalas_button = Button(root, text="Foglalás", font=("Arial", 18), command=foglalas)
 horror_foglalas_button.grid(column=5, row=2, padx=10, pady=10)
 
 
@@ -129,7 +121,7 @@ horror_leiras_button = Button(root, text="Film leírás", font=("Arial", 18), co
 horror_leiras_button.grid(column=6, row=2, padx=10, pady=10)
 
 
-toystory_foglalas_button = Button(root, text="Foglalás", font=("Arial", 18), command=toyystory)
+toystory_foglalas_button = Button(root, text="Foglalás", font=("Arial", 18), command=foglalas)
 toystory_foglalas_button.grid(column=11, row=2, padx=10, pady=10)
 
 
@@ -137,7 +129,7 @@ toystory_leiras_button = Button(root, text="Film leírás", font=("Arial", 18), 
 toystory_leiras_button.grid(column=12, row=2, padx=10, pady=10)
 
 
-mamma_foglalas_button = Button(root, text="Foglalás", font=("Arial", 18), command=miia)
+mamma_foglalas_button = Button(root, text="Foglalás", font=("Arial", 18), command=foglalas)
 mamma_foglalas_button.grid(column=5, row=4, padx=10, pady=10)
 
 
@@ -146,7 +138,7 @@ mamma_leiras_button.grid(column=6, row=4, padx=10, pady=10)
 
 
 
-puss_foglalas_button = Button(root, text="Foglalás", font=("Arial", 18), command=boots)
+puss_foglalas_button = Button(root, text="Foglalás", font=("Arial", 18), command=foglalas)
 puss_foglalas_button.grid(column=11, row=4, padx=10, pady=10)
 
 
