@@ -10,26 +10,26 @@ root.config(bg="white")
 def halloween():
     top = Toplevel()
     top.title("Hosszúság átváltás")
-    top.config(bg="#a3cef1")
+    top.config(bg="white")
 
 
 def toyystory():
     toy = Toplevel()
     toy.title("Toy Story foglalás")
-    toy.config(bg="#white")
+    toy.config(bg="#a3cef1")
 
 
 
 def miia():
     mia = Toplevel()
     mia.title("Mamma mia foglalás")
-    mia.config(bg="#white")
+    mia.config(bg="white")
 
 
 def boots():
     cat = Toplevel()
     cat.title("Csizmás a kandúr foglalás")
-    cat.config(bg="#white")
+    cat.config(bg="white")
 
 
     
