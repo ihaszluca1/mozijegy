@@ -3,40 +3,60 @@ from PIL import Image, ImageTk
 
 root = Tk()
 root.title("Főoldal")
-root.geometry("750x270")
-root.config(bg="")
+root.geometry("1000x1000")
+root.config(bg="white")
 
 
 
-#fő ablak dizájnolása, elemek létrehozása
+
 label_szoveg = Label(root, text="Műsoron lévő filmek listája:", font=("Arial", 20))
-label_szoveg.grid(column=1, row=1, columnspan=2, pady=10)
+label_szoveg.grid(column=6, row=1, columnspan=2, pady=10)
 
 
 horror = Image.open('horror.jpg')
-kep = horror.resize((30,25))
+kep = horror.resize((200,300))
 horror_meret= ImageTk.PhotoImage(kep)
 horror_meret_cim =Label(root, image=horror_meret).grid(column=1, row=2)
 
+horror_foglalas_button = Button(root, text="Foglalás", font=("Arial", 18))
+horror_foglalas_button.grid(column=5, row=2, padx=10, pady=10)
 
 
-# image1 = Image.open('kincs.webp')
-# image1 = ImageTk.PhotoImage(image1)
-# image1_label =Label(root, image=image).grid(column=1, row=3)
-
-# image2 = Image.open('mammamia.jpg')
-# image2 = ImageTk.PhotoImage(image2)
-# image2_label =Label(root, image=image).grid(column=1, row=4)
-
-# image3 = Image.open('puss.webp')
-# image3 = ImageTk.PhotoImage(image3)
-# image3_label =Label(root, image=image).grid(column=1, row=5)
-
-# image4 = Image.open('toystory.jpg')
-# image4 = ImageTk.PhotoImage(image4)
-# image4_label =Label(root, image=image).grid(column=1, row=6)
+toystory = Image.open('toystory.jpg')
+kep = toystory.resize((200,300))
+toystory_meret= ImageTk.PhotoImage(kep)
+toystory_meret_cim =Label(root, image=toystory_meret).grid(column=7, row=2)
 
 
+toystory_foglalas_button = Button(root, text="Foglalás", font=("Arial", 18))
+toystory_foglalas_button.grid(column=11, row=2, padx=10, pady=10)
 
-# Futtatás
+
+label_szoveg = Label(root)
+label_szoveg.grid(column=5, row=3, columnspan=2, pady=10)
+
+
+mamma = Image.open('mammamia.jpg')
+kep = mamma.resize((200,300))
+mamma_meret= ImageTk.PhotoImage(kep)
+mamma_meret_cim =Label(root, image=mamma_meret).grid(column=1, row=4)
+
+
+toystory_foglalas_button = Button(root, text="Foglalás", font=("Arial", 18))
+toystory_foglalas_button.grid(column=5, row=4, padx=10, pady=10)
+
+
+
+puss = Image.open('puss.webp')
+kep = puss.resize((200,300))
+puss_meret= ImageTk.PhotoImage(kep)
+puss_meret_cim =Label(root, image=puss_meret).grid(column=7, row=4)
+
+
+toystory_foglalas_button = Button(root, text="Foglalás", font=("Arial", 18))
+toystory_foglalas_button.grid(column=11, row=4, padx=10, pady=10)
+
+
+
+
 root.mainloop()
