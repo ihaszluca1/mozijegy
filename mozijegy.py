@@ -48,6 +48,7 @@ def leiras():
     top = Toplevel()
     top.title("Film leírás")
     top.config(bg="white")
+    
 
 
 def foglalas():
@@ -93,11 +94,11 @@ def foglalas():
             uzenet_label.grid(column=4, row=6, columnspan=2, pady=5)
 
         if not vezeteknev or not keresztnev or not telefon or not email or not email_megint:
-            uzenet_label.config(text="⚠️ Minden mezőt ki kell tölteni!", fg="red")
+            uzenet_label.config(text="Minden mezőt ki kell tölteni!", fg="red")
             return
 
         if email != email_megint:
-            uzenet_label.config(text="⚠️ Az e-mail címek nem egyeznek!", fg="red")
+            uzenet_label.config(text="Az e-mail címek nem egyeznek!", fg="red")
             return
 
         # Ha minden rendben, mentés az adatbázisba
@@ -108,7 +109,7 @@ def foglalas():
         conn.commit()
         conn.close()
 
-        uzenet_label.config(text="✅ Foglalás sikeres!", fg="green")
+        uzenet_label.config(text="Foglalás sikeres!", fg="green")
 
     foglalas_button = Button(top, text="Foglalás", font=("Arial", 18), command=adatbazis_mentes)
     foglalas_button.grid(column=2, row=7, padx=10, pady=10)
