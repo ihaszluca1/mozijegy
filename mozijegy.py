@@ -10,39 +10,37 @@ root.config(bg="white")
 
 conn = sqlite3.connect("users.db")
 c = conn.cursor()
+
 c.execute("""
     CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY
-        nev TEXT
-        email TEXT
+        id INTEGER PRIMARY KEY,
+        nev TEXT,
+        email TEXT,
         iranyszam INTEGER
     )
 """)
 
 c.execute("""
     CREATE TABLE IF NOT EXISTS filmek (
-          cim TEXT
-          tipus TEXT
-          fimlid INTEGER PRIMARY KEY
-          hosszido TIME
-          vetites DATE
-          )
+        cim TEXT,
+        tipus TEXT,
+        fimlid INTEGER PRIMARY KEY,
+        hosszido TIME,
+        vetites DATE
+    )
 """)
 
-c.execute(""""
-          CREATE TABLE IF NOT EXISTS foglalas(
-          id INTEGER
-          filmid INTEGER
-          foglalastime TIME
-          SZEK INT
-          TEREM INT
-          FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE
-          FOREIGN KEY (filmid) REFERENCES users (filmid) ON DELETE CASCADE
-          )
+c.execute("""
+    CREATE TABLE IF NOT EXISTS foglalas (
+        id INTEGER,
+        filmid INTEGER,
+        foglalastime TIME,
+        SZEK INT,
+        TEREM INT,
+        FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE,
+        FOREIGN KEY (filmid) REFERENCES filmek (fimlid) ON DELETE CASCADE
+    )
 """)
-
-conn.commit()
-conn.close()
 
 
 def leiras():
@@ -65,6 +63,10 @@ def foglalas():
     telefon_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid").grid(column=4, row=3, columnspan=2, padx=3, pady=5)
     email_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid").grid(column=4, row=4, columnspan=2, padx=3, pady=5)
     email_megint_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid").grid(column=4, row=5, columnspan=2, padx=3, pady=5)
+
+
+    foglalas_button = Button(top, text="Foglalás", font=("Arial", 18), command=foglalas)
+    foglalas_button.grid(column=2, row=7, padx=10, pady=10)
 
 
 
