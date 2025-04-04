@@ -42,9 +42,6 @@ c.execute("""
     )
 """)
 
-conn.commit()
-conn.close()
-
 
 
 def leiras():
@@ -57,16 +54,52 @@ def foglalas():
     top = Toplevel()
     top.title("Jegyfoglalás")
     top.config(bg="green")
-    vezeteknev = Label(top, text="Vezetéknév", font=("Ariel", 15)).grid(column=1, row=1, columnspan=2, pady=10)
-    keresztnev = Label(top, text="Keresztnév", font=("Ariel", 15)).grid(column=1, row=2, columnspan=2, pady=10)
-    telefon = Label(top, text="Telefonszám", font=("Ariel", 15)).grid(column=1, row=3, columnspan=2, pady=10)
-    email = Label(top, text="Email", font=("Ariel", 15)).grid(column=1, row=4, columnspan=2, pady=10)
-    email_megint = Label(top, text="Email ismét", font=("Ariel", 15)).grid(column=1, row=5, columnspan=2, pady=10)
-    vezeteknev_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid").grid(column=4, row=1, columnspan=2, padx=3, pady=5)
-    keresztnev_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid").grid(column=4, row=2, columnspan=2, padx=3, pady=5)
-    telefon_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid").grid(column=4, row=3, columnspan=2, padx=3, pady=5)
-    email_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid").grid(column=4, row=4, columnspan=2, padx=3, pady=5)
-    email_megint_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid").grid(column=4, row=5, columnspan=2, padx=3, pady=5)
+
+    Label(top, text="Vezetéknév", font=("Ariel", 15)).grid(column=1, row=1, columnspan=2, pady=10)
+    Label(top, text="Keresztnév", font=("Ariel", 15)).grid(column=1, row=2, columnspan=2, pady=10)
+    Label(top, text="Telefonszám", font=("Ariel", 15)).grid(column=1, row=3, columnspan=2, pady=10)
+    Label(top, text="Email", font=("Ariel", 15)).grid(column=1, row=4, columnspan=2, pady=10)
+    Label(top, text="Email ismét", font=("Ariel", 15)).grid(column=1, row=5, columnspan=2, pady=10)
+
+    vezeteknev_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid")
+    vezeteknev_be.grid(column=4, row=1, columnspan=2, padx=3, pady=5)
+
+    keresztnev_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid")
+    keresztnev_be.grid(column=4, row=2, columnspan=2, padx=3, pady=5)
+
+    telefon_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid")
+    telefon_be.grid(column=4, row=3, columnspan=2, padx=3, pady=5)
+
+    email_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid")
+    email_be.grid(column=4, row=4, columnspan=2, padx=3, pady=5)
+
+    email_megint_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid")
+    email_megint_be.grid(column=4, row=5, columnspan=2, padx=3, pady=5)
+
+    def adatbazis_mentes():
+        vezeteknev = vezeteknev_be.get()
+        keresztnev = keresztnev_be.get()
+        telefon = telefon_be.get()
+        email = email_be.get()
+        email_megint = email_megint_be.get()
+
+        if email != email_megint:
+            Label(top, text="⚠️ Az e-mail címek nem egyeznek!", fg="red").grid(column=4, row=6, columnspan=2)
+            return
+
+        conn = sqlite3.connect("users.db")
+        c = conn.cursor()
+
+        c.execute("INSERT INTO users (nev, email, iranyszam) VALUES (?, ?, ?)",
+                  (vezeteknev + " " + keresztnev, email, telefon))
+
+        conn.commit()
+        conn.close()
+
+        Label(top, text="✅ Foglalás sikeres!", fg="green").grid(column=4, row=7, columnspan=2)
+
+    foglalas_button = Button(top, text="Foglalás", font=("Arial", 18), command=adatbazis_mentes)
+    foglalas_button.grid(column=2, row=7, padx=10, pady=10)
 
 
 
