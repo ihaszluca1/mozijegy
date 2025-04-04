@@ -10,39 +10,41 @@ root.config(bg="white")
 
 conn = sqlite3.connect("users.db")
 c = conn.cursor()
+
 c.execute("""
     CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY
-        nev TEXT
-        email TEXT
+        id INTEGER PRIMARY KEY,
+        nev TEXT,
+        email TEXT,
         iranyszam INTEGER
     )
 """)
 
 c.execute("""
     CREATE TABLE IF NOT EXISTS filmek (
-          cim TEXT
-          tipus TEXT
-          fimlid INTEGER PRIMARY KEY
-          hosszido TIME
-          vetites DATE
-          )
+        cim TEXT,
+        tipus TEXT,
+        fimlid INTEGER PRIMARY KEY,
+        hosszido TIME,
+        vetites DATE
+    )
 """)
 
-c.execute(""""
-          CREATE TABLE IF NOT EXISTS foglalas(
-          id INTEGER
-          filmid INTEGER
-          foglalastime TIME
-          SZEK INT
-          TEREM INT
-          FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE
-          FOREIGN KEY (filmid) REFERENCES users (filmid) ON DELETE CASCADE
-          )
+c.execute("""
+    CREATE TABLE IF NOT EXISTS foglalas (
+        id INTEGER,
+        filmid INTEGER,
+        foglalastime TIME,
+        SZEK INT,
+        TEREM INT,
+        FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE,
+        FOREIGN KEY (filmid) REFERENCES filmek (fimlid) ON DELETE CASCADE
+    )
 """)
 
 conn.commit()
 conn.close()
+
 
 
 def leiras():
