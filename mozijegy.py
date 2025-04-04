@@ -76,15 +76,27 @@ def foglalas():
     email_megint_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid")
     email_megint_be.grid(column=4, row=5, columnspan=2, padx=3, pady=5)
 
+    hiba_label = Label(top, text="", fg="red", font=("Arial", 12))
+    hiba_label.grid(column=4, row=6, columnspan=2, pady=5)
+
+    siker_label = Label(top, text="", fg="green", font=("Arial", 12))
+    siker_label.grid(column=4, row=7, columnspan=2, pady=5)
+
     def adatbazis_mentes():
-        vezeteknev = vezeteknev_be.get()
-        keresztnev = keresztnev_be.get()
-        telefon = telefon_be.get()
-        email = email_be.get()
-        email_megint = email_megint_be.get()
+        vezeteknev = vezeteknev_be.get().strip()
+        keresztnev = keresztnev_be.get().strip()
+        telefon = telefon_be.get().strip()
+        email = email_be.get().strip()
+        email_megint = email_megint_be.get().strip()
+
+        if not vezeteknev or not keresztnev or not telefon or not email or not email_megint:
+            hiba_label.config(text="⚠️ Minden mezőt ki kell tölteni!")
+            siker_label.config(text="") 
+            return
 
         if email != email_megint:
-            Label(top, text="⚠️ Az e-mail címek nem egyeznek!", fg="red").grid(column=4, row=6, columnspan=2)
+            hiba_label.config(text="⚠️ Az e-mail címek nem egyeznek!")
+            siker_label.config(text="")
             return
 
         conn = sqlite3.connect("users.db")
@@ -96,10 +108,12 @@ def foglalas():
         conn.commit()
         conn.close()
 
-        Label(top, text="✅ Foglalás sikeres!", fg="green").grid(column=4, row=7, columnspan=2)
+        siker_label.config(text="✅ Foglalás sikeres!")
+        hiba_label.config(text="")  # Töröljük a hibaüzenetet, ha volt
 
     foglalas_button = Button(top, text="Foglalás", font=("Arial", 18), command=adatbazis_mentes)
-    foglalas_button.grid(column=2, row=7, padx=10, pady=10)
+    foglalas_button.grid(column=2, row=8, padx=10, pady=10)
+
 
 
 
