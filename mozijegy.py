@@ -90,13 +90,11 @@ def foglalas():
         email_megint = email_megint_be.get().strip()
 
         if not vezeteknev or not keresztnev or not telefon or not email or not email_megint:
-            hiba_label.config(text="⚠️ Minden mezőt ki kell tölteni!")
-            siker_label.config(text="") 
+            hiba_label.config(text="Minden mezőt ki kell tölteni!")
             return
 
         if email != email_megint:
-            hiba_label.config(text="⚠️ Az e-mail címek nem egyeznek!")
-            siker_label.config(text="")
+            hiba_label.config(text="Az e-mail címek nem egyeznek!")
             return
 
         conn = sqlite3.connect("users.db")
@@ -108,7 +106,7 @@ def foglalas():
         conn.commit()
         conn.close()
 
-        siker_label.config(text="✅ Foglalás sikeres!")
+        siker_label.config(text="Foglalás sikeres!")
         hiba_label.config(text="")  # Töröljük a hibaüzenetet, ha volt
 
     foglalas_button = Button(top, text="Foglalás", font=("Arial", 18), command=adatbazis_mentes)
