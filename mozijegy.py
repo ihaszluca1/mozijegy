@@ -125,11 +125,11 @@ def foglalas():
             uzenet_label.grid(column=4, row=6, columnspan=2, pady=5)
 
         if not vezeteknev or not keresztnev or not telefon or not email or not email_megint:
-            uzenet_label.config(text="⚠️ Minden mezőt ki kell tölteni!", fg="red")
+            hiba_label.config(text="Minden mezőt ki kell tölteni!")
             return
 
         if email != email_megint:
-            uzenet_label.config(text="⚠️ Az e-mail címek nem egyeznek!", fg="red")
+            hiba_label.config(text="Az e-mail címek nem egyeznek!")
             return
 
         # Ha minden rendben, mentés az adatbázisba
@@ -140,7 +140,8 @@ def foglalas():
         conn.commit()
         conn.close()
 
-        uzenet_label.config(text="✅ Foglalás sikeres!", fg="green")
+        siker_label.config(text="Foglalás sikeres!")
+        hiba_label.config(text="")  # Töröljük a hibaüzenetet, ha volt
 
     foglalas_button = Button(top, text="Foglalás", font=("Arial", 18), command=adatbazis_mentes)
     foglalas_button.grid(column=2, row=7, padx=10, pady=10)
