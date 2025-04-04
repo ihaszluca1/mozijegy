@@ -82,38 +82,68 @@ def foglalas():
     siker_label = Label(top, text="", fg="green", font=("Arial", 12))
     siker_label.grid(column=4, row=7, columnspan=2, pady=5)
 
+def foglalas():
+    top = Toplevel()
+    top.title("Jegyfoglalás")
+    top.config(bg="green")
+
+    Label(top, text="Vezetéknév", font=("Ariel", 15)).grid(column=1, row=1, columnspan=2, pady=10)
+    Label(top, text="Keresztnév", font=("Ariel", 15)).grid(column=1, row=2, columnspan=2, pady=10)
+    Label(top, text="Telefonszám", font=("Ariel", 15)).grid(column=1, row=3, columnspan=2, pady=10)
+    Label(top, text="Email", font=("Ariel", 15)).grid(column=1, row=4, columnspan=2, pady=10)
+    Label(top, text="Email ismét", font=("Ariel", 15)).grid(column=1, row=5, columnspan=2, pady=10)
+
+    vezeteknev_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid")
+    vezeteknev_be.grid(column=4, row=1, columnspan=2, padx=3, pady=5)
+
+    keresztnev_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid")
+    keresztnev_be.grid(column=4, row=2, columnspan=2, padx=3, pady=5)
+
+    telefon_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid")
+    telefon_be.grid(column=4, row=3, columnspan=2, padx=3, pady=5)
+
+    email_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid")
+    email_be.grid(column=4, row=4, columnspan=2, padx=3, pady=5)
+
+    email_megint_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid")
+    email_megint_be.grid(column=4, row=5, columnspan=2, padx=3, pady=5)
+
+    uzenet_label = None  # Az üzenet címke eleinte nem létezik
+
     def adatbazis_mentes():
+        nonlocal uzenet_label  # Használhatjuk a külső változót
+
         vezeteknev = vezeteknev_be.get().strip()
         keresztnev = keresztnev_be.get().strip()
         telefon = telefon_be.get().strip()
         email = email_be.get().strip()
         email_megint = email_megint_be.get().strip()
 
+        # Ha az üzenet_label még nem létezik, létrehozzuk
+        if uzenet_label is None:
+            uzenet_label = Label(top, text="", font=("Arial", 12))
+            uzenet_label.grid(column=4, row=6, columnspan=2, pady=5)
+
         if not vezeteknev or not keresztnev or not telefon or not email or not email_megint:
-            hiba_label.config(text="⚠️ Minden mezőt ki kell tölteni!")
-            siker_label.config(text="") 
+            uzenet_label.config(text="⚠️ Minden mezőt ki kell tölteni!", fg="red")
             return
 
         if email != email_megint:
-            hiba_label.config(text="⚠️ Az e-mail címek nem egyeznek!")
-            siker_label.config(text="")
+            uzenet_label.config(text="⚠️ Az e-mail címek nem egyeznek!", fg="red")
             return
 
+        # Ha minden rendben, mentés az adatbázisba
         conn = sqlite3.connect("users.db")
         c = conn.cursor()
-
         c.execute("INSERT INTO users (nev, email, iranyszam) VALUES (?, ?, ?)",
                   (vezeteknev + " " + keresztnev, email, telefon))
-
         conn.commit()
         conn.close()
 
-        siker_label.config(text="✅ Foglalás sikeres!")
-        hiba_label.config(text="")  # Töröljük a hibaüzenetet, ha volt
+        uzenet_label.config(text="✅ Foglalás sikeres!", fg="green")
 
     foglalas_button = Button(top, text="Foglalás", font=("Arial", 18), command=adatbazis_mentes)
-    foglalas_button.grid(column=2, row=8, padx=10, pady=10)
-
+    foglalas_button.grid(column=2, row=7, padx=10, pady=10)
 
 
 
