@@ -84,7 +84,7 @@ def foglalas():
         email_megint = email_megint_be.get()
 
         if email != email_megint:
-            Label(top, text="⚠️ Az e-mail címek nem egyeznek!", fg="red").grid(column=4, row=6, columnspan=2)
+            Label(top, text=" Az e-mail címek nem egyeznek!", fg="red").grid(column=4, row=6, columnspan=2)
             return
 
         conn = sqlite3.connect("users.db")
@@ -96,7 +96,7 @@ def foglalas():
         conn.commit()
         conn.close()
 
-        Label(top, text="✅ Foglalás sikeres!", fg="green").grid(column=4, row=7, columnspan=2)
+        Label(top, text=" Foglalás sikeres!", fg="green").grid(column=4, row=7, columnspan=2)
 
     foglalas_button = Button(top, text="Foglalás", font=("Arial", 18), command=adatbazis_mentes)
     foglalas_button.grid(column=2, row=7, padx=10, pady=10)
