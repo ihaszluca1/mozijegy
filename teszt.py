@@ -1,5 +1,5 @@
 from tkinter import *
-from  import Image, ImageTk
+from PIL import Image, ImageTk
 import sqlite3
 
 root = Tk()
