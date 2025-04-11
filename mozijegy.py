@@ -1,158 +1,154 @@
-from tkinter import *
-from PIL import Image, ImageTk
 import sqlite3
+import os
+from tkinter import *
+from tkinter import messagebox
+from PIL import Image, ImageTk
+import ttkbootstrap as tb
 
-root = Tk()
-root.title("Főoldal")
-root.geometry("1000x1000")
-root.config(bg="white")
-
-
-conn = sqlite3.connect("users.db")
+# --- ADATBÁZIS LÉTREHOZÁSA ---
+conn = sqlite3.connect("mozi.db")
 c = conn.cursor()
 
-c.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY,
-        nev TEXT,
-        email TEXT,
-        iranyszam INTEGER
-    )
-""")
+# Terem tábla
+c.execute('''
+CREATE TABLE IF NOT EXISTS termek (
+    terem_szam INTEGER PRIMARY KEY,
+    film_cim TEXT,
+    ev INTEGER,
+    mufaj TEXT,
+    jatekido INTEGER,
+    kapacitas INTEGER
+)
+''')
 
-c.execute("""
-    CREATE TABLE IF NOT EXISTS filmek (
-        cim TEXT,
-        tipus TEXT,
-        fimlid INTEGER PRIMARY KEY,
-        hosszido TIME,
-        vetites DATE
-    )
-""")
+# Foglalás tábla
+c.execute('''
+CREATE TABLE IF NOT EXISTS foglalasok (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    vezeteknev TEXT,
+    keresztnev TEXT,
+    terem_szam INTEGER,
+    szek_szam INTEGER,
+    jegytipus TEXT,
+    FOREIGN KEY (terem_szam) REFERENCES termek (terem_szam)
+)
+''')
 
-c.execute("""
-    CREATE TABLE IF NOT EXISTS foglalas (
-        id INTEGER,
-        filmid INTEGER,
-        foglalastime TIME,
-        SZEK INT,
-        TEREM INT,
-        FOREIGN KEY (id) REFERENCES users (id) ON DELETE CASCADE,
-        FOREIGN KEY (filmid) REFERENCES filmek (fimlid) ON DELETE CASCADE
-    )
-""")
+# Dummy filmadatok (ha még nincsenek)
+c.execute("SELECT COUNT(*) FROM termek")
+if c.fetchone()[0] == 0:
+    c.execute("INSERT INTO termek VALUES (1, 'Horror Express', 1972, 'Horror', 94, 10)")
+    c.execute("INSERT INTO termek VALUES (2, 'Toy Story', 1995, 'Animáció', 81, 12)")
+    c.execute("INSERT INTO termek VALUES (3, 'Mamma Mia!', 2008, 'Musical', 108, 15)")
+    c.execute("INSERT INTO termek VALUES (4, 'Csizmás a kandúr', 2011, 'Családi', 90, 14)")
+    conn.commit()
 
-    
+conn.close()
 
-def foglalas():
-    top = Toplevel()
-    top.title("Jegyfoglalás")
-    top.config(bg="green")
+# --- ALKALMAZÁS ---
+app = tb.Window(themename="superhero")
+app.title("Mozi Jegyfoglalás")
+app.geometry("1200x800")
 
-    Label(top, text="Vezetéknév", font=("Ariel", 15)).grid(column=1, row=1, columnspan=2, pady=10)
-    Label(top, text="Keresztnév", font=("Ariel", 15)).grid(column=1, row=2, columnspan=2, pady=10)
-    Label(top, text="Telefonszám", font=("Ariel", 15)).grid(column=1, row=3, columnspan=2, pady=10)
-    Label(top, text="Email", font=("Ariel", 15)).grid(column=1, row=4, columnspan=2, pady=10)
-    Label(top, text="Email ismét", font=("Ariel", 15)).grid(column=1, row=5, columnspan=2, pady=10)
+cim = Label(app, text="🎬 Műsoron lévő filmek", font=("Arial", 24))
+cim.pack(pady=20)
 
-    vezeteknev_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid")
-    vezeteknev_be.grid(column=4, row=1, columnspan=2, padx=3, pady=5)
+frame = Frame(app)
+frame.pack()
 
-    keresztnev_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid")
-    keresztnev_be.grid(column=4, row=2, columnspan=2, padx=3, pady=5)
+# Film adatok lekérése adatbázisból
+conn = sqlite3.connect("mozi.db")
+c = conn.cursor()
+c.execute("SELECT * FROM termek")
+filmek = c.fetchall()
+conn.close()
 
-    telefon_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid")
-    telefon_be.grid(column=4, row=3, columnspan=2, padx=3, pady=5)
+# --- KÉPEK ÉS GOMBOK MEGJELENÍTÉSE ---
+def film_kartya(film, index):
+    terem_szam, cim, ev, mufaj, jatekido, kapacitas = film
+    kep_path = f"film{terem_szam}.jpg"
+    if os.path.exists(kep_path):
+        img = Image.open(kep_path).resize((200, 300))
+    else:
+        img = Image.new('RGB', (200, 300), color='gray')
+    tk_kep = ImageTk.PhotoImage(img)
 
-    email_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid")
-    email_be.grid(column=4, row=4, columnspan=2, padx=3, pady=5)
+    panel = Label(frame, image=tk_kep)
+    panel.image = tk_kep
+    panel.grid(row=0, column=index, padx=20)
 
-    email_megint_be = Entry(top, width=20, font=("Arial", 15), borderwidth=1, relief="solid")
-    email_megint_be.grid(column=4, row=5, columnspan=2, padx=3, pady=5)
+    cimke = Label(frame, text=cim, font=("Arial", 14))
+    cimke.grid(row=1, column=index)
 
-    uzenet_label = None  # Az üzenet címke eleinte nem létezik
+    Button(frame, text="Leírás", bootstyle="info", command=lambda: leiras_ablak(film)).grid(row=2, column=index, pady=5)
+    Button(frame, text="Foglalás", bootstyle="success", command=lambda: foglalas_ablak(film)).grid(row=3, column=index, pady=5)
 
-    def adatbazis_mentes():
-        nonlocal uzenet_label  # Használhatjuk a külső változót
+for i, film in enumerate(filmek):
+    film_kartya(film, i)
 
-        vezeteknev = vezeteknev_be.get().strip()
-        keresztnev = keresztnev_be.get().strip()
-        telefon = telefon_be.get().strip()
-        email = email_be.get().strip()
-        email_megint = email_megint_be.get().strip()
+# --- FILM LEÍRÁS ABLAK ---
+def leiras_ablak(film):
+    terem_szam, cim, ev, mufaj, jatekido, kapacitas = film
 
-        # Ha az üzenet_label még nem létezik, létrehozzuk
-        if uzenet_label is None:
-            uzenet_label = Label(top, text="", font=("Arial", 12))
-            uzenet_label.grid(column=4, row=6, columnspan=2, pady=5)
+    conn = sqlite3.connect("mozi.db")
+    c = conn.cursor()
+    c.execute("SELECT COUNT(*) FROM foglalasok WHERE terem_szam = ?", (terem_szam,))
+    foglalt = c.fetchone()[0]
+    conn.close()
 
-        if not vezeteknev or not keresztnev or not telefon or not email or not email_megint:
-            uzenet_label.config(text="Minden mezőt ki kell tölteni!", fg="red")
+    szabad = kapacitas - foglalt
+
+    top = Toplevel(app)
+    top.title(f"{cim} - Leírás")
+    Label(top, text=f"Cím: {cim}\nÉv: {ev}\nMűfaj: {mufaj}\nJátékidő: {jatekido} perc\n\nElérhető helyek: {szabad}/{kapacitas}", font=("Arial", 14), justify=LEFT).pack(padx=20, pady=20)
+
+# --- FOGLALÁS ABLAK ---
+def foglalas_ablak(film):
+    terem_szam, cim, ev, mufaj, jatekido, kapacitas = film
+
+    fog_win = Toplevel(app)
+    fog_win.title("Foglalás")
+
+    Label(fog_win, text=f"Film: {cim}", font=("Arial", 16)).grid(row=0, column=0, columnspan=2, pady=10)
+
+    Label(fog_win, text="Vezetéknév").grid(row=1, column=0, sticky=W, padx=10)
+    Label(fog_win, text="Keresztnév").grid(row=2, column=0, sticky=W, padx=10)
+    Label(fog_win, text="Székszám").grid(row=3, column=0, sticky=W, padx=10)
+    Label(fog_win, text="Jegytípus").grid(row=4, column=0, sticky=W, padx=10)
+
+    vnev = Entry(fog_win)
+    knev = Entry(fog_win)
+    szek = Entry(fog_win)
+    tipus = tb.Combobox(fog_win, values=["Normál", "Diák", "Nyugdíjas"])
+
+    vnev.grid(row=1, column=1)
+    knev.grid(row=2, column=1)
+    szek.grid(row=3, column=1)
+    tipus.grid(row=4, column=1)
+
+    def mentes():
+        try:
+            szek_szam = int(szek.get())
+        except:
+            messagebox.showerror("Hiba", "Székszám csak szám lehet!")
             return
 
-        if email != email_megint:
-            uzenet_label.config(text="Az e-mail címek nem egyeznek!", fg="red")
-            return
-
-        # Ha minden rendben, mentés az adatbázisba
-        conn = sqlite3.connect("users.db")
+        conn = sqlite3.connect("mozi.db")
         c = conn.cursor()
-        c.execute("INSERT INTO users (nev, email, iranyszam) VALUES (?, ?, ?)",
-                  (vezeteknev + " " + keresztnev, email, telefon))
-        conn.commit()
+        c.execute("SELECT COUNT(*) FROM foglalasok WHERE terem_szam = ?", (terem_szam,))
+        foglalt = c.fetchone()[0]
+        c.execute("SELECT kapacitas FROM termek WHERE terem_szam = ?", (terem_szam,))
+        kap = c.fetchone()[0]
+
+        if foglalt >= kap:
+            messagebox.showwarning("Nincs több hely", "Ez a vetítés megtelt!")
+        else:
+            c.execute("INSERT INTO foglalasok (vezeteknev, keresztnev, terem_szam, szek_szam, jegytipus) VALUES (?, ?, ?, ?, ?)",
+                      (vnev.get(), knev.get(), terem_szam, szek_szam, tipus.get()))
+            conn.commit()
+            messagebox.showinfo("Siker", "Foglalás sikeres!")
         conn.close()
 
-        uzenet_label.config(text="Foglalás sikeres!", fg="green")
+    Button(fog_win, text="Foglalás rögzítése", command=mentes, bootstyle="success").grid(row=5, column=0, columnspan=2, pady=20)
 
-    foglalas_button = Button(top, text="Foglalás", font=("Arial", 18), command=adatbazis_mentes)
-    foglalas_button.grid(column=2, row=7, padx=10, pady=10)
-
-
-
-
-
-label_szoveg = Label(root, text="Műsoron lévő filmek listája:", font=("Arial", 20))
-label_szoveg.grid(column=6, row=1, columnspan=2, pady=10)
-
-
-label_szoveg = Label(root)
-label_szoveg.grid(column=5, row=3, columnspan=2, pady=10)
-
-
-
-
-
-
-
-horror = Image.open('horror.jpg')
-kep = horror.resize((200,300))
-horror_meret= ImageTk.PhotoImage(kep)
-horror_meret_cim =Label(root, image=horror_meret).grid(column=2, row=2)
-
-
-toystory = Image.open('toystory.jpg')
-kep = toystory.resize((200,300))
-toystory_meret= ImageTk.PhotoImage(kep)
-toystory_meret_cim =Label(root, image=toystory_meret).grid(column=7, row=2)
-
-
-mamma = Image.open('mammamia.jpg')
-kep = mamma.resize((200,300))
-mamma_meret= ImageTk.PhotoImage(kep)
-mamma_meret_cim =Label(root, image=mamma_meret).grid(column=2, row=4)
-
-
-puss = Image.open('puss.webp')
-kep = puss.resize((200,300))
-puss_meret= ImageTk.PhotoImage(kep)
-puss_meret_cim =Label(root, image=puss_meret).grid(column=7, row=4)
-
-
-
-
-
-
-foglalas_button = Button(root, text="Foglalás", font=("Arial", 18), command=foglalas)
-foglalas_button.grid(column=5, row=9, padx=10, pady=10)
-
-root.mainloop()
+app.mainloop()
