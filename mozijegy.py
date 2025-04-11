@@ -1,6 +1,7 @@
 import sqlite3
 import os
-from tkinter import *
+from ttkbootstrap.constants import *
+from ttkbootstrap import Button, Label, Entry, Toplevel, Frame, Combobox
 from tkinter import messagebox
 from PIL import Image, ImageTk
 import ttkbootstrap as tb
