@@ -48,16 +48,18 @@ if c.fetchone()[0] == 0:
 conn.close()
 
 # --- ALKALMAZÁS ---
-app = tb.Window(themename="superhero")
+app = tb.Window(themename="morph")
 app.title("Mozi Jegyfoglalás")
 app.geometry("1200x800")
 
+
+
 Label(app, text="\U0001F3AC Műsoron lévő filmek", font=("Arial", 24)).pack(pady=20)
-frame = Frame(app)
-frame.pack()
+program = Frame(app)
+program.pack()
 
 # PDF generálás (székszám nélkül)
-def generate_pdf(nev, foglalasok):
+def pdf_generalas(nev, foglalasok):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
@@ -77,15 +79,17 @@ conn.close()
 
 def film_kartya(film, index):
     terem_szam, cim, ev, mufaj, jatekido, kapacitas = film
-    kep_path = f"film{terem_szam}.jpg"
-    img = Image.open(kep_path).resize((200, 300)) if os.path.exists(kep_path) else Image.new('RGB', (200, 300), color='gray')
-    tk_kep = ImageTk.PhotoImage(img)
-    panel = Label(frame, image=tk_kep)
+    kep = f"film{terem_szam}.jpg"
+    kep_meretezes = Image.open(kep).resize((200, 300))
+    tk_kep = ImageTk.PhotoImage(kep_meretezes)
+    panel = Label(program, image=tk_kep)
     panel.image = tk_kep
     panel.grid(row=0, column=index, padx=20)
-    Label(frame, text=cim, font=("Arial", 14)).grid(row=1, column=index)
-    Button(frame, text="Leírás", bootstyle="info", command=lambda: leiras_ablak(film)).grid(row=2, column=index, pady=5)
-    Button(frame, text="Foglalás", bootstyle="success", command=lambda: foglalas_ablak(film)).grid(row=3, column=index, pady=5)
+    Label(program, text=cim, font=("Arial", 14)).grid(row=1, column=index)
+    Button(program, text="Leírás", bootstyle="info", command=lambda: leiras_ablak(film)).grid(row=2, column=index, pady=5)
+    Button(program, text="Foglalás", bootstyle="success", command=lambda: foglalas_ablak(film)).grid(row=3, column=index, pady=5)
+
+
 
 def leiras_ablak(film):
     terem_szam, cim, ev, mufaj, jatekido, kapacitas = film
@@ -95,21 +99,26 @@ def leiras_ablak(film):
     foglalt = c.fetchone()[0]
     conn.close()
     szabad = kapacitas - foglalt
-    top = Toplevel(app)
-    top.title(f"{cim} - Leírás")
-    Label(top, text=f"Cím: {cim}\nÉv: {ev}\nMűfaj: {mufaj}\nJátékidő: {jatekido} perc\n\nElérhető helyek: {szabad}/{kapacitas}", font=("Arial", 14), justify=LEFT).pack(padx=20, pady=20)
+    leiras = Toplevel(app)
+    leiras.title(f"{cim} - Leírás")
+    Label(leiras, text=f"Cím: {cim}\nÉv: {ev}\nMűfaj: {mufaj}\nJátékidő: {jatekido} perc\n\nElérhető helyek: {szabad}/{kapacitas}", font=("Arial", 14), justify=LEFT).pack(padx=20, pady=20)
+
+
 
 def foglalas_ablak(film):
     terem_szam, cim, ev, mufaj, jatekido, kapacitas = film
-    fog_win = Toplevel(app)
-    fog_win.title("Foglalás")
-    Label(fog_win, text=f"Film: {cim}", font=("Arial", 16)).grid(row=0, column=0, columnspan=2, pady=10)
-    Label(fog_win, text="Vezetéknév").grid(row=1, column=0, sticky=W, padx=10)
-    Label(fog_win, text="Keresztnév").grid(row=2, column=0, sticky=W, padx=10)
-    Label(fog_win, text="Jegytípus").grid(row=3, column=0, sticky=W, padx=10)
-    Label(fog_win, text="Jegyek száma").grid(row=4, column=0, sticky=W, padx=10)
-    vnev, knev, tipus, jegy_szam = Entry(fog_win), Entry(fog_win), Combobox(fog_win, values=["Normál", "Diák", "Nyugdíjas"]), Entry(fog_win)
-    vnev.grid(row=1, column=1); knev.grid(row=2, column=1); tipus.grid(row=3, column=1); jegy_szam.grid(row=4, column=1)
+    foglalas = Toplevel(app)
+    foglalas.title("Foglalás")
+    Label(foglalas, text=f"Film: {cim}", font=("Arial", 16)).grid(row=0, column=0, columnspan=2, pady=10)
+    Label(foglalas, text="Vezetéknév").grid(row=1, column=0, sticky=W, padx=10)
+    Label(foglalas, text="Keresztnév").grid(row=2, column=0, sticky=W, padx=10)
+    Label(foglalas, text="Jegytípus").grid(row=3, column=0, sticky=W, padx=10)
+    Label(foglalas, text="Jegyek száma").grid(row=4, column=0, sticky=W, padx=10)
+    vnev, knev, tipus, jegy_szam = Entry(foglalas), Entry(foglalas), Combobox(foglalas, values=["Normál", "Diák", "Nyugdíjas"]), Entry(foglalas)
+    vnev.grid(row=1, column=1)
+    knev.grid(row=2, column=1)
+    tipus.grid(row=3, column=1)
+    jegy_szam.grid(row=4, column=1)
 
     conn = sqlite3.connect("mozi.db")
     c = conn.cursor()
@@ -120,9 +129,14 @@ def foglalas_ablak(film):
     conn.close()
 
     szazalek = round((foglalt / kapacitas) * 100) if kapacitas else 0
-    szin = "danger" if szazalek > 90 else "success" if szazalek < 40 else "warning"
+    if szazalek > 90:
+        szin = "danger"
+    elif szazalek < 40:
+        szin = "success"
+    else:
+        szin = "warning"
 
-    meter = Meter(fog_win, bootstyle=szin, subtext="Foglaltság", interactive=False, textright="%", amountused=szazalek, amounttotal=100)
+    meter = Meter(foglalas, bootstyle=szin, subtext="Foglaltság", interactive=False, textright="%", amountused=szazalek, amounttotal=100)
     meter.grid(row=5, column=0, columnspan=2, pady=20)
 
     def mentes():
@@ -144,36 +158,34 @@ def foglalas_ablak(film):
             return
 
         for _ in range(darab):
-            c.execute("INSERT INTO foglalasok (vezeteknev, keresztnev, terem_szam, jegytipus) VALUES (?, ?, ?, ?)",
-                      (vnev.get(), knev.get(), terem_szam, tipus.get()))
+            c.execute("INSERT INTO foglalasok (vezeteknev, keresztnev, terem_szam, jegytipus) VALUES (?, ?, ?, ?)", (vnev.get(), knev.get(), terem_szam, tipus.get()))
         conn.commit()
-        c.execute("SELECT terem_szam, jegytipus FROM foglalasok WHERE vezeteknev=? AND keresztnev=? ORDER BY id DESC LIMIT ?",
-                  (vnev.get(), knev.get(), darab))
+        c.execute("SELECT terem_szam, jegytipus FROM foglalasok WHERE vezeteknev=? AND keresztnev=? ORDER BY id DESC LIMIT ?", (vnev.get(), knev.get(), darab))
         pdf_foglalasok = c.fetchall()
         conn.close()
-        generate_pdf(f"{vnev.get()} {knev.get()}", pdf_foglalasok)
+        pdf_generalas(f"{vnev.get()} {knev.get()}", pdf_foglalasok)
         messagebox.showinfo("Siker", f"{darab} jegyet lefoglaltunk!")
-        fog_win.destroy()
+        foglalas.destroy()
 
-    Button(fog_win, text="Foglalás rögzítése", command=mentes, bootstyle="success").grid(row=6, column=0, columnspan=2, pady=20)
+    Button(foglalas, text="Foglalás rögzítése", command=mentes, bootstyle="success").grid(row=6, column=0, columnspan=2, pady=20)
 
 def torles_ablak():
-    top = Toplevel(app)
-    top.title("Foglalás törlése név alapján")
+    torles = Toplevel(app)
+    torles.title("Foglalás törlése név alapján")
 
-    Label(top, text="Vezetéknév:").pack(pady=5)
-    vnev_entry = Entry(top)
+    Label(torles, text="Vezetéknév:").pack(pady=5)
+    vnev_entry = Entry(torles)
     vnev_entry.pack()
 
-    Label(top, text="Keresztnév:").pack(pady=5)
-    knev_entry = Entry(top)
+    Label(torles, text="Keresztnév:").pack(pady=5)
+    knev_entry = Entry(torles)
     knev_entry.pack()
 
     def torol():
         vnev = vnev_entry.get().strip()
         knev = knev_entry.get().strip()
         if not vnev or not knev:
-            messagebox.showerror("Hiba", "Adj meg teljes nevet!")
+            messagebox.showerror("Hiba", "Adja meg a teljes nevet!")
             return
 
         conn = sqlite3.connect("mozi.db")
@@ -188,9 +200,9 @@ def torles_ablak():
             conn.commit()
             messagebox.showinfo("Siker", f"{count} foglalás törölve.")
         conn.close()
-        top.destroy()
+        torles.destroy()
 
-    Button(top, text="Törlés", command=torol, bootstyle="danger").pack(pady=10)
+    Button(torles, text="Törlés", command=torol, bootstyle="danger").pack(pady=10)
 
 def statisztika():
     conn = sqlite3.connect("mozi.db")
