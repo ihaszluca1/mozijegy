@@ -9,6 +9,7 @@ import ttkbootstrap as tb
 from fpdf import FPDF
 import plotly.graph_objects as go
 
+
 # --- ADATBÁZIS LÉTREHOZÁSA ---
 conn = sqlite3.connect("mozi.db")
 c = conn.cursor()
@@ -107,14 +108,32 @@ def foglalas_ablak(film):
     Label(fog_win, text="Jegyek száma").grid(row=5, column=0, sticky=W, padx=10)
     vnev, knev, szek, tipus, jegy_szam = Entry(fog_win), Entry(fog_win), Entry(fog_win), Combobox(fog_win, values=["Normál", "Diák", "Nyugdíjas"]), Entry(fog_win)
     vnev.grid(row=1, column=1); knev.grid(row=2, column=1); szek.grid(row=3, column=1); tipus.grid(row=4, column=1); jegy_szam.grid(row=5, column=1)
-    conn = sqlite3.connect("mozi.db"); c = conn.cursor()
+    conn = sqlite3.connect("mozi.db")
+    c = conn.cursor()
     c.execute("SELECT COUNT(*) FROM foglalasok WHERE terem_szam = ?", (terem_szam,))
     foglalt = c.fetchone()[0]
+    c.execute("SELECT kapacitas FROM termek WHERE terem_szam = ?", (terem_szam,))
+    kapacitas = c.fetchone()[0]
     conn.close()
-    meter = Meter(fog_win, bootstyle="success", subtext="Foglaltság", amountused=foglalt, amounttotal=kapacitas, metertype='semi')
-    meter.grid(row=6, column=0, columnspan=2, pady=10)
-    f_szazalek = int((foglalt / kapacitas) * 100)
-    meter.configure(bootstyle="danger" if f_szazalek >= 90 else "success" if f_szazalek <= 40 else "warning")
+
+    szazalek = round((foglalt / kapacitas) * 100) if kapacitas else 0
+
+    # Szín meghatározása
+    if szazalek > 90:
+        szin = "danger"
+    elif szazalek < 40:
+        szin = "success"
+    else:
+        szin = "warning"
+
+    meter = Meter(fog_win,
+                bootstyle=szin,
+                subtext="Foglaltság",
+                interactive=False,
+                textright="%",
+                amountused=szazalek,
+                amounttotal=100)
+    meter.grid(row=6, column=0, columnspan=2, pady=20)
 
     def mentes():
         try:
